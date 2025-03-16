@@ -39,7 +39,10 @@ const users = {
 //Producer
 let observable = new Observable((sub) => {
   sub.next(users);
+  sub.complete();
 });
+
+//Any Error will stop the next flow
 
 //intermediate function / processing
 observable = observable.pipe(
@@ -50,7 +53,11 @@ observable = observable.pipe(
   map((value) => {
     return value.filter((user) => user.status === 'active');
   }),
-  map((value) => value.reduce((acc, user) => acc + user.age, 0) / value.length)
+  map((value) => value.reduce((acc, user) => acc + user.age, 0) / value.length),
+  map((value) => {
+    if (value < 18) throw new Error('AVG age is too young');
+    else return value;
+  })
 );
 
 //Consumer
